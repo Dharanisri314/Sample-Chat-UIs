@@ -1,4 +1,107 @@
-MessagingChat;
+// import { useState, useEffect, useRef } from 'react';
+// import axios from 'axios';
+// import './ModernMessagingChat.css';
+
+// const ModernMessagingChat = () => {
+//   const [inputValue, setInputValue] = useState('');
+//   const [chatMessages, setChatMessages] = useState([]);
+//   const [editId, setEditId] = useState(null);
+//   const messagesEndRef = useRef(null);
+
+//   useEffect(() => {
+//     fetchMessages();
+//   }, []);
+
+//   useEffect(() => {
+//     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+//   }, [chatMessages]);
+
+//   // This function is called when you type in the input field.
+//   const handleInputChange = (event) => {
+//     setInputValue(event.target.value); // Saves what you type into 'inputValue'.
+//   };
+
+//   // This function is called when the send button is pressed or Enter key is hit.
+//   const handleSendMessage = () => {
+//     if (inputValue.trim() === '') return; // Does not send if the message is empty.
+
+//     // Creates a new message object.
+//     const newMessage = {
+//       id: chatMessages.length + 1, // New unique ID
+//       text: inputValue, // The message you typed
+//       sender: "me", // Sender is 'me'
+//       time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }), // Current time
+//       avatar: "😊" // Your avatar
+//     };
+
+//     // Updates 'chatMessages' by adding the new message to the existing ones.
+//     setChatMessages((prevMessages) => [...prevMessages, newMessage]);
+//     setInputValue(''); // Clears the typing box after sending the message.
+//   };
+
+//   // This function is used to send a message when the Enter key is pressed.
+//   const handleKeyPress = (event) => {
+//     if (event.key === 'Enter') {
+//       handleSendOrUpdate();
+//     }
+//   };
+
+//   return (
+//     <div className="modern-chat" style={{ position: 'relative', minHeight: '100vh' }}>
+//       <div className="chat-header">
+//         <div className="contact-info">
+//           <div className="avatar">👨‍💼</div>
+//           <div className="contact-details">
+//             <h3>John Doe</h3>
+//             <span className="status">Online</span>
+//           </div>
+//         </div>
+//         <div className="header-actions">
+//           <button className="action-btn">📞</button>
+//           <button className="action-btn">📹</button>
+//           <button className="action-btn">ℹ️</button>
+//         </div>
+//       </div>
+
+//       <div className="messages-container">
+//         {chatMessages.map((message) => (
+//           <div key={message.id} className={`message ${message.sender}`}>
+//             <div className="message-avatar">{message.avatar}</div>
+//             <div className="message-content">
+//               <div className="message-bubble">
+//                 <p>{message.text}</p>
+//                 <button onClick={() => handleEdit(message.id, message.text)}>✏️</button>
+//                 <button onClick={() => handleDelete(message.id)}>🗑️</button>
+//               </div>
+//               <span className="message-time">{message.time}</span>
+//             </div>
+//           </div>
+//         ))}
+//         <div ref={messagesEndRef} />
+//       </div>
+
+//       <div className="message-input">
+//         <button type="button" className="attachment-btn">📎</button>
+//         <input
+//           type="text"
+//           value={inputValue}
+//           placeholder="Type a message..."
+//           className="message-field"
+//           onChange={(e) => setInputValue(e.target.value)}
+//           onKeyPress={handleKeyPress}
+//         />
+//         <button type="button" className="emoji-btn">😊</button>
+//         <button type="button" className="send-btn" onClick={handleSendOrUpdate}>
+//           <span>{editId ? '✅' : '➤'}</span>
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ModernMessagingChat;
+
+
 
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
@@ -15,8 +118,34 @@ const ModernMessagingChat = () => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  // ✅ Inject Botpress WebChat only once
+  useEffect(() => {
+    const existingScript = document.getElementById('botpress-webchat-script');
+    if (existingScript) return; // Already added
+
+    const script = document.createElement('script');
+    script.id = 'botpress-webchat-script';
+    script.src = 'https://cdn.botpress.cloud/webchat/v0/inject.js';
+    script.async = true;
+
+    script.onload = () => {
+      if (window.botpressWebChat) {
+        window.botpressWebChat.init({
+          botId: '22fb351d-2ad9-443f-a05f-22c303616444',
+          hostUrl: 'https://cdn.botpress.cloud/webchat/v0',
+          messagingUrl: 'https://messaging.botpress.cloud',
+          clientId: '22fb351d-2ad9-443f-a05f-22c303616444',
+          showCloseButton: true,
+          showPoweredBy: false
+        });
+      }
+    };
+
+    document.body.appendChild(script);
+  }, []);
 
   const fetchMessages = async () => {
     try {
@@ -25,7 +154,10 @@ const ModernMessagingChat = () => {
         res.data.map((msg) => ({
           id: msg.id,
           text: msg.name,
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
           sender: 'me',
           avatar: '😊'
         }))
@@ -60,7 +192,10 @@ const ModernMessagingChat = () => {
         const newMessage = {
           id: res.data.id,
           text: res.data.name,
-          time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          time: new Date().toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
           sender: 'me',
           avatar: '😊'
         };
@@ -94,7 +229,7 @@ const ModernMessagingChat = () => {
   };
 
   return (
-    <div className="modern-chat">
+    <div className="modern-chat" style={{ position: 'relative', minHeight: '100vh' }}>
       <div className="chat-header">
         <div className="contact-info">
           <div className="avatar">👨‍💼</div>
@@ -147,3 +282,4 @@ const ModernMessagingChat = () => {
 };
 
 export default ModernMessagingChat;
+
