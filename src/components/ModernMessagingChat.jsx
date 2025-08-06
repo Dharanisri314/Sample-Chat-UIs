@@ -101,8 +101,6 @@
 
 // export default ModernMessagingChat;
 
-
-
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './ModernMessagingChat.css';
@@ -121,25 +119,34 @@ const ModernMessagingChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // ✅ Inject Botpress WebChat only once
+  // ✅ Inject Botpress WebChat only once - floating
   useEffect(() => {
-    const existingScript = document.getElementById('botpress-webchat-script');
-    if (existingScript) return; // Already added
-
     const script = document.createElement('script');
-    script.id = 'botpress-webchat-script';
-    script.src = 'https://cdn.botpress.cloud/webchat/v0/inject.js';
+    script.src = 'https://cdn.botpress.cloud/webchat/v3.2/inject.js';
     script.async = true;
 
     script.onload = () => {
-      if (window.botpressWebChat) {
-        window.botpressWebChat.init({
-          botId: '22fb351d-2ad9-443f-a05f-22c303616444',
-          hostUrl: 'https://cdn.botpress.cloud/webchat/v0',
-          messagingUrl: 'https://messaging.botpress.cloud',
-          clientId: '22fb351d-2ad9-443f-a05f-22c303616444',
-          showCloseButton: true,
-          showPoweredBy: false
+      if (window.botpress) {
+        window.botpress.init({
+          botId: '66125ee0-e3a5-4032-b5d5-c37c45d8d63b', // ✅ Your botId
+          clientId: '559e2d54-95cd-4cea-8edc-40c9a7728387', // ✅ Your clientId
+          // ❌ No selector needed - floating button mode
+          configuration: {
+            version: 'v1',
+            botName: 'My Bot',
+            color: '#3276EA',
+            themeMode: 'light',
+            headerVariant: 'glass',
+            fontFamily: 'inter',
+            radius: 4,
+            feedbackEnabled: true,
+            footer: '[⚡ by Botpress](https://botpress.com/?from=webchat)',
+            enableReset: true
+          }
+        });
+
+        window.botpress.on('webchat:ready', () => {
+          window.botpress.open(); // ✅ Auto open
         });
       }
     };
@@ -262,6 +269,8 @@ const ModernMessagingChat = () => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* ❌ Removed Botpress container - floating button only */}
+
       <div className="message-input">
         <button type="button" className="attachment-btn">📎</button>
         <input
@@ -282,4 +291,3 @@ const ModernMessagingChat = () => {
 };
 
 export default ModernMessagingChat;
-
